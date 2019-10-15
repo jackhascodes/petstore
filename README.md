@@ -16,8 +16,8 @@ and Order services.
 
 ## Considerations
 Consideration was given to making a separate inventory service, but this was discarded as a solution due to the limited 
-nature of use cases outlined in the API spec. Given that it would essentially be a simple aggregator of order statuses 
-it was decided to fold that functionality into the Order service.
+nature of use cases outlined in the API spec. Given that it would essentially be a simple aggregator of pet statuses 
+it was decided to fold that functionality into the Pet service.
 
 The use of a message-queue to handle events, and in fact to use events at all, is intended to allow for long-lived 
 order simulation and also to demonstrate the extensibility of this design. For example, integration with other services
