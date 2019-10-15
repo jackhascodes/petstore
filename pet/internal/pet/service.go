@@ -50,4 +50,9 @@ func (s *Service) DeletePet(id int64) error {
 
 func (s *Service) UploadImage(){
 	// TODO: write this
+	// Considering skipping this functionality for time constraints around adequately setting up a storage volume.
+}
+
+func (s *Service) GetInventory() Inventory {
+	return s.db.GetStatusCounts()
 }
