@@ -5,7 +5,7 @@ package pet
 import "testing"
 
 func setup() (*MySQLPersistence, error) {
-	return InitMySQLPersistence("testdb",3306,"root","root","pet")
+	return InitMySQLPersistence("mysql",33061,"test","test","pet")
 }
 
 func mockPet() *Pet {
