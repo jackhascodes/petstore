@@ -7,10 +7,10 @@ import (
 
 type Pet struct {
 	Id int64 `json:"id,omitempty"`
-	Category Meta `json:"category,omitempty"`
+	Category *Meta `json:"category,omitempty"`
 	Name string `json:"name"`
 	PhotoUrls []string `json:"photoUrls"`
-	Tags []Meta `json:"tags,omitempty"`
+	Tags []*Meta `json:"tags,omitempty"`
 	Status Status `json:"status,omitempty"`
 }
 
@@ -40,12 +40,16 @@ func (s *Status) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
+	return s.FromString(j)
+}
+
+func (s *Status) FromString(st string) error {
 	strings := map[string]Status{
 		"available":AVAILABLE,
 		"pending":PENDING,
 		"sold":SOLD,
 	}
-	*s = strings[j]
+	*s = strings[st]
 	if *s == INVALID {
 		return errors.New("invalid value for type Status")
 	}
