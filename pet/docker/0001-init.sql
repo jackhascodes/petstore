@@ -64,3 +64,7 @@ VALUES (1, 'https://s3.public/img1-1.png', now()),
        (3, 'https://s3.public/img3-1.png', now()),
        (3, 'https://s3.public/img3-2.png', now()),
        (1, 'https://s3.public/img1-3.png', now());
+-- since we've added test data, we'll update the latest sequence values for the tables affected.
+ALTER TABLE pets AUTO_INCREMENT=4;
+ALTER TABLE categories AUTO_INCREMENT=4;
+ALTER TABLE tags AUTO_INCREMENT=4;
