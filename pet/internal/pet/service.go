@@ -9,11 +9,11 @@ type Service struct {
 	db Persistence
 }
 
-func NewService(db Persistence) *Service{
-	return &Service{db:db}
+func NewService(db Persistence) *Service {
+	return &Service{db: db}
 }
 
-func (s *Service) AddPet(pet *Pet) (*Pet, error){
+func (s *Service) AddPet(pet *Pet) (*Pet, error) {
 	p, err := s.db.Insert(pet)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (s *Service) AddPet(pet *Pet) (*Pet, error){
 	return p, nil
 }
 
-func (s *Service) UpdatePet(pet *Pet) error{
+func (s *Service) UpdatePet(pet *Pet) error {
 	err := s.db.Update(pet)
 	return err
 }
@@ -48,7 +48,7 @@ func (s *Service) DeletePet(id int64) error {
 	return s.db.Delete(id)
 }
 
-func (s *Service) UploadImage(){
+func (s *Service) UploadImage() {
 	// TODO: write this
 	// Considering skipping this functionality for time constraints around adequately setting up a storage volume.
 }
