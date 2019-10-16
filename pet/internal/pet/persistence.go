@@ -209,6 +209,7 @@ func (p *MySQLPersistence) updatePhotos(id int64, photos []string) error {
 
 func (p *MySQLPersistence) insertPhotos(id int64, photos []string) error {
 	// TODO: finish this
+	// back at the keyboard
 }
 
 
