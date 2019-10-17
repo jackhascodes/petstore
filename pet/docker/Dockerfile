@@ -6,8 +6,8 @@ WORKDIR /app
 
 COPY ./ .
 
-RUN go mod vendor && go build -o main
+RUN go mod vendor && go build -o main cmd/pet/main.go
 
-# TODO: EXPOSE 8081
+EXPOSE 8081
 
 CMD ["./main"]

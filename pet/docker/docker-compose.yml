@@ -3,9 +3,16 @@ services:
   app:
     build:
       context: ../
-      dockerfile: ./docker/Dockerfile.test
-    #TODO: ports
-    #TODO: - 8081:8081
+      dockerfile: ./docker/Dockerfile
+    environment:
+      dbuser: test
+      dbpass: test
+      dbname: pet
+      dbhost: mysql-pets
+      dbport: 3306
+      apikey: testkey
+    ports:
+     - 8081:8081
     depends_on:
       - mysql
   mysql:
