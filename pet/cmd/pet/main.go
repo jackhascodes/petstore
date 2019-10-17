@@ -1,3 +1,9 @@
+// package main contains the basic setup for the application.
+// For the sake of time, a simple environment vars setup has been used to initialise database credentials and api-key.
+// Given more time, this would have been done using an env file and go flags to populate these details.
+//
+// For simplicity's sake, the ListenAndServe functionality is not made concurrent through use of a channel. In a 'real'
+// application, consideration would be made to do so depending on frequency and volume of use.
 package main
 
 import (

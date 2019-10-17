@@ -14,6 +14,8 @@ var log = logrus.New()
 func SetupHttpHandlers(k string, s *pet.Service) *http.Server{
 
 	r := mux.NewRouter()
+
+	// Handlers are returned via wrapped funcs to allow service sharing.
 	r.HandleFunc("/pet/{id}", getPetById(k, s)).Methods("GET")
 	r.HandleFunc("/pet/{id}", updatePetForm(k, s)).Methods("POST")
 	r.HandleFunc("/pet/{id}", deletePet(k, s)).Methods("DELETE")
@@ -33,11 +35,16 @@ func SetupHttpHandlers(k string, s *pet.Service) *http.Server{
 	return srv
 }
 
+// getPetById returns a handler which will perform very basic auth and responds with:
+// * 401 Unauthorized - if the api key is incorrect
+// * 404 Unfound - if the requested pet does not exist
+// * 200 - and a json representation of the pet if the pet is found
 func getPetById(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request){
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		vars := mux.Vars(r)
 		id, err := strconv.ParseInt(vars["id"], 10, 64)
@@ -52,13 +59,21 @@ func getPetById(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Re
 			return
 		}
 		j, _ := json.Marshal(res)
-		w.WriteHeader(http.StatusOK)
 		w.Write(j)
 	}
 }
 
+// updatePetForm returns a handler which converts form data to a Pet instance and tries an update. Returns:
+// 401 Unauthorized - if the api key is incorrect or missing
+// 400 Bad Request - if the input cannot be parsed correctly
+// 200 OK - if the update happened without error
 func updatePetForm(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request){
 	return func(w http.ResponseWriter, r *http.Request) {
+		key := r.Header.Get("x-api-key")
+		if key != k {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 		r.ParseForm()
 		vars := mux.Vars(r)
 		id, err := strconv.ParseInt(vars["id"], 10, 64)
@@ -75,11 +90,14 @@ func updatePetForm(k string, s *pet.Service) func(w http.ResponseWriter, r *http
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 
 	}
 }
 
+// deletePet returns a handler which soft-deletes a Pet in the database. Returns:
+// 401 Unauthorized - if the api key is incorrect or missing
+// 400 Bad Request - if the id cannot be parsed correctly
+// 200 OK - if the delete happened without error
 func deletePet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -96,25 +114,26 @@ func deletePet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
-
+// uploadImage has not been implemented and will tell you so.
 func uploadImage(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		key := r.Header.Get("x-api-key")
-		if key != k {
-			w.WriteHeader(http.StatusUnauthorized)
-		}
 		w.WriteHeader(http.StatusNotImplemented)
 		w.Write([]byte("not implemented"))
 	}
 }
+
+// addPet takes a json representation of a pet and inserts it into the database. Returns:
+// 401 Unauthorized - if the api key is missing or incorrect
+// 400 Bad Request - if the json cannot be decoded
+// 200 OK - and a json representation of the pet with its new id if the insert happened with no errors
 func addPet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		p := &pet.Pet{}
 		err := json.NewDecoder(r.Body).Decode(&p)
@@ -129,19 +148,22 @@ func addPet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Reques
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 
 		j, _ := json.Marshal(p)
-		w.WriteHeader(http.StatusOK)
 		w.Write(j)
 	}
 }
 
+// updatePet takes a json representation of the Pet struct and updates an existing instance in the database. Returns:
+// 401 Unauthorized - if the api key is missing or incorrect
+// 400 Bad Request - if there are any issues decoding the json
+// 200 OK - if the update was all good.
 func updatePet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		p := &pet.Pet{}
 		err := json.NewDecoder(r.Body).Decode(&p)
@@ -156,15 +178,18 @@ func updatePet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
+// findByStatus returns an array of pets with the relevant status. Returns:
+// 401 Unauthorized - if the api key is missing or incorrect
+// 200 OK - and a json array of pet objects
 func findByStatus(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		vars := mux.Vars(r)
 		st := pet.INVALID
@@ -177,7 +202,6 @@ func findByStatus(k string, s *pet.Service) func(w http.ResponseWriter, r *http.
 		res := s.FindByStatus(st)
 
 		j, _ := json.Marshal(res)
-		w.WriteHeader(http.StatusOK)
 		w.Write(j)
 	}
 }
