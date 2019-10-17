@@ -8,4 +8,4 @@ COPY ./ .
 
 RUN go mod vendor
 
-CMD ["go", "test", "-tags=integration", "./..."]
+CMD ["go", "test", "-tags=integration,unit", "./..."]

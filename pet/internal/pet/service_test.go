@@ -1,3 +1,5 @@
+// +build unit
+
 package pet
 
 import (
@@ -179,7 +181,7 @@ func (h HappyPathDB) Delete(id int64) error {
 }
 
 func (h HappyPathDB) GetStatusCounts() *Inventory {
-	return &Inventory{"available":1}
+	return &Inventory{"available": 1}
 }
 func (h SadPathDB) FindById(id int64) *Pet {
 	return nil
@@ -199,4 +201,5 @@ func (h SadPathDB) Delete(id int64) error {
 func (h SadPathDB) GetStatusCounts() *Inventory {
 	return &Inventory{}
 }
+
 var sadPathError = errors.New("database error")

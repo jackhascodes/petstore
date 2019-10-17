@@ -175,7 +175,7 @@ func (p *MySQLPersistence) updateTags(id int64, tags []*Meta) error {
 	if id == 0 {
 		return nil
 	}
-	res, err := p.db.Exec(`DELETE FROM pet_tags WHERE petId = ?`,id)
+	res, err := p.db.Exec(`DELETE FROM pet_tags WHERE petId = ?`, id)
 	if err != nil {
 		p.log.Errorf("clear tags failed: res %v, err %v", res, err)
 	}
@@ -195,7 +195,7 @@ func (p *MySQLPersistence) insertTags(id int64, tags []*Meta) error {
 	res, err := p.db.Exec(`
 		INSERT IGNORE INTO pet_tags (petId, tagId)
 		VALUES
-		` + strings.Join(vals, ","), params...)
+		`+strings.Join(vals, ","), params...)
 	if err != nil {
 		p.log.Errorf("add tags failed: res %v, err %v", res, err)
 		return err

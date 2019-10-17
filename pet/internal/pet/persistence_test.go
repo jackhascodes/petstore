@@ -8,12 +8,12 @@ import (
 )
 
 func setup() (*MySQLPersistence, error) {
-	return InitMySQLPersistence("mysql-pets","3306","test","test","pet")
+	return InitMySQLPersistence("mysql-pets", "3306", "test", "test", "pet")
 }
 
 func mockPet() *Pet {
 	pet := InitPet("testPet", []string{"testphoto"})
-	pet.Tags = []*Meta{{1,"independent"}}
+	pet.Tags = []*Meta{{1, "independent"}}
 	pet.Category = &Meta{1, "dogs"}
 	pet.Status = AVAILABLE
 	return pet
@@ -43,7 +43,7 @@ func TestMySQLPersistence_FindById(t *testing.T) {
 		t.Errorf("could not find pet")
 	}
 	if found.Category.Name != "dogs" {
-		s,_ := json.Marshal(pet)
+		s, _ := json.Marshal(pet)
 		t.Errorf("could not populate category: %s", string(s))
 	}
 	if len(found.Tags) == 0 {
@@ -92,9 +92,3 @@ func TestMySQLPersistence_GetStatusCounts(t *testing.T) {
 		t.Errorf("expected results, got 0")
 	}
 }
-
-
-
-
-
-

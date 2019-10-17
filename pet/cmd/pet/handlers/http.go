@@ -2,16 +2,19 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/jackhascodes/petstore/pet/internal/pet"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/jackhascodes/petstore/pet/internal/pet"
+	"github.com/sirupsen/logrus"
 )
+
 var log = logrus.New()
-func SetupHttpHandlers(k string, s *pet.Service) *http.Server{
+
+func SetupHttpHandlers(k string, s *pet.Service) *http.Server {
 
 	r := mux.NewRouter()
 
@@ -39,7 +42,7 @@ func SetupHttpHandlers(k string, s *pet.Service) *http.Server{
 // * 401 Unauthorized - if the api key is incorrect
 // * 404 Unfound - if the requested pet does not exist
 // * 200 - and a json representation of the pet if the pet is found
-func getPetById(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request){
+func getPetById(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
@@ -67,7 +70,7 @@ func getPetById(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Re
 // 401 Unauthorized - if the api key is incorrect or missing
 // 400 Bad Request - if the input cannot be parsed correctly
 // 200 OK - if the update happened without error
-func updatePetForm(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request){
+func updatePetForm(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.Header.Get("x-api-key")
 		if key != k {
@@ -116,6 +119,7 @@ func deletePet(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Req
 		}
 	}
 }
+
 // uploadImage has not been implemented and will tell you so.
 func uploadImage(k string, s *pet.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {

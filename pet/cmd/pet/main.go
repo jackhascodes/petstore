@@ -7,21 +7,22 @@
 package main
 
 import (
+	"os"
 
 	"github.com/jackhascodes/petstore/pet/cmd/pet/handlers"
 	"github.com/jackhascodes/petstore/pet/internal/pet"
 	"github.com/sirupsen/logrus"
-	"os"
 )
 
 var log = logrus.New()
+
 func main() {
 
 	var (
-		host = os.Getenv("dbhost")
-		port = os.Getenv("dbport")
-		user = os.Getenv("dbuser")
-		pass = os.Getenv("dbpass")
+		host   = os.Getenv("dbhost")
+		port   = os.Getenv("dbport")
+		user   = os.Getenv("dbuser")
+		pass   = os.Getenv("dbpass")
 		dbName = os.Getenv("dbname")
 		apikey = os.Getenv("apikey")
 	)
