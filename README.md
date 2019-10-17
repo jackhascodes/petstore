@@ -29,4 +29,4 @@ the simple integration with Go and a very easy setup for demonstration purposes.
 * how to run individual services
 * how to run everything together   
 
-checkpoint: 5h 3m spent so far
+checkpoint: 7h 10m spent so far
