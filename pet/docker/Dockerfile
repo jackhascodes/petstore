@@ -1,10 +1,10 @@
-FROM golang:1.12
+FROM golang:1.13
 
 MAINTAINER Jack Butler <jack@jackhas.codes>
 
 WORKDIR /app
 
-COPY ../ .
+COPY ./ .
 
 RUN go mod vendor && go build -o main
 

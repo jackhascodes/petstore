@@ -126,8 +126,7 @@ func (h HappyPathDB) FindById(id int64) *Pet {
 		Name:      "testPet",
 		PhotoUrls: []string{"http://localhost/image.png"},
 		Status:    AVAILABLE,
-		Category:  Meta{Name: "testing", Id: 1},
-		Tags:      []Meta{},
+		Category:  &Meta{Name: "testing", Id: 1},
 	}
 
 }
@@ -139,15 +138,13 @@ func (h HappyPathDB) FindByStatus(status Status) []*Pet {
 				Name:      "testPet1",
 				PhotoUrls: []string{"http://localhost/image.png"},
 				Status:    AVAILABLE,
-				Category:  Meta{Name: "testing", Id: 1},
-				Tags:      []Meta{},
+				Category:  &Meta{Name: "testing", Id: 1},
 			},
 			{Id: 2,
 				Name:      "testPet2",
 				PhotoUrls: []string{"http://localhost/image.png"},
 				Status:    AVAILABLE,
-				Category:  Meta{Name: "testing", Id: 1},
-				Tags:      []Meta{},
+				Category:  &Meta{Name: "testing", Id: 1},
 			},
 		}
 	case PENDING:
@@ -156,8 +153,7 @@ func (h HappyPathDB) FindByStatus(status Status) []*Pet {
 				Name:      "testPet3",
 				PhotoUrls: []string{"http://localhost/image.png"},
 				Status:    PENDING,
-				Category:  Meta{Name: "testing", Id: 1},
-				Tags:      []Meta{},
+				Category:  &Meta{Name: "testing", Id: 1},
 			},
 		}
 	default:
@@ -166,8 +162,7 @@ func (h HappyPathDB) FindByStatus(status Status) []*Pet {
 				Name:      "testPet4",
 				PhotoUrls: []string{"http://localhost/image.png"},
 				Status:    SOLD,
-				Category:  Meta{Name: "testing", Id: 1},
-				Tags:      []Meta{},
+				Category:  &Meta{Name: "testing", Id: 1},
 			},
 		}
 	}
@@ -183,6 +178,9 @@ func (h HappyPathDB) Delete(id int64) error {
 	return nil
 }
 
+func (h HappyPathDB) GetStatusCounts() *Inventory {
+	return &Inventory{"available":1}
+}
 func (h SadPathDB) FindById(id int64) *Pet {
 	return nil
 }
@@ -198,5 +196,7 @@ func (h SadPathDB) Insert(pet *Pet) (*Pet, error) {
 func (h SadPathDB) Delete(id int64) error {
 	return sadPathError
 }
-
+func (h SadPathDB) GetStatusCounts() *Inventory {
+	return &Inventory{}
+}
 var sadPathError = errors.New("database error")

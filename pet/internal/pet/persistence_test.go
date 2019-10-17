@@ -2,16 +2,19 @@
 
 package pet
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func setup() (*MySQLPersistence, error) {
-	return InitMySQLPersistence("mysql",33061,"test","test","pet")
+	return InitMySQLPersistence("mysql-pets","3306","test","test","pet")
 }
 
 func mockPet() *Pet {
-	pet = InitPet("testPet", []string{"testphoto"})
-	pet.Tags = []*Meta{{1,"testing"}}
-	pet.Category = &Meta{1, "testCat"}
+	pet := InitPet("testPet", []string{"testphoto"})
+	pet.Tags = []*Meta{{1,"independent"}}
+	pet.Category = &Meta{1, "dogs"}
 	pet.Status = AVAILABLE
 	return pet
 }
@@ -31,16 +34,17 @@ func TestMySQLPersistence_Insert(t *testing.T) {
 }
 
 func TestMySQLPersistence_FindById(t *testing.T) {
-	db, err := setup()
+	db, _ := setup()
 	defer db.db.Close()
 	pet := mockPet()
-	inserted, err := db.Insert(pet)
+	inserted, _ := db.Insert(pet)
 	found := db.FindById(inserted.Id)
 	if found == nil || found.Id == 0 {
 		t.Errorf("could not find pet")
 	}
-	if found.Category.Name != "testCat" {
-		t.Errorf("could not populate category")
+	if found.Category.Name != "dogs" {
+		s,_ := json.Marshal(pet)
+		t.Errorf("could not populate category: %s", string(s))
 	}
 	if len(found.Tags) == 0 {
 		t.Errorf("could not populate tags")
@@ -53,16 +57,12 @@ func TestMySQLPersistence_FindById(t *testing.T) {
 }
 
 func TestMySQLPersistence_FindByStatus(t *testing.T) {
-	db, err := setup()
+	db, _ := setup()
 	defer db.db.Close()
-	pet := mockPet()
-	inserted, err := db.Insert(pet)
 	found := db.FindByStatus(AVAILABLE)
 	if len(found) == 0 {
 		t.Errorf("findByStatus returned 0 results")
 	}
-
-	db.Delete(inserted.Id)
 }
 
 func TestMySQLPersistence_Update(t *testing.T) {
@@ -71,7 +71,7 @@ func TestMySQLPersistence_Update(t *testing.T) {
 	pet := mockPet()
 	inserted, err := db.Insert(pet)
 	inserted.Status = SOLD
-	err := db.Update(inserted)
+	err = db.Update(inserted)
 	if err != nil {
 		t.Errorf("should not have errored: %v", err)
 	}
@@ -82,13 +82,14 @@ func TestMySQLPersistence_Update(t *testing.T) {
 }
 
 func TestMySQLPersistence_GetStatusCounts(t *testing.T) {
-	db, err := setup()
+	db, _ := setup()
 	defer db.db.Close()
 	pet := mockPet()
-	inserted, err := db.Insert(pet)
-	inv := db.GetStatusCounts()
+	db.Insert(pet)
+
+	inv := *db.GetStatusCounts()
 	if inv[AVAILABLE.String()] == 0 {
-		t.Errorf("expected 1 result, got 0")
+		t.Errorf("expected results, got 0")
 	}
 }
 

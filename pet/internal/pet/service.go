@@ -53,6 +53,6 @@ func (s *Service) UploadImage() {
 	// Considering skipping this functionality for time constraints around adequately setting up a storage volume.
 }
 
-func (s *Service) GetInventory() Inventory {
+func (s *Service) GetInventory() *Inventory {
 	return s.db.GetStatusCounts()
 }

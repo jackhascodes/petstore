@@ -1,0 +1,11 @@
+FROM golang:1.13
+
+MAINTAINER Jack Butler <jack@jackhas.codes>
+
+WORKDIR /app
+
+COPY ./ .
+
+RUN go mod vendor
+
+CMD ["go", "test", "-tags=integration", "./..."]

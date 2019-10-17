@@ -36,20 +36,21 @@ type MySQLPersistence struct {
 func (p *MySQLPersistence) FindById(id int64) *Pet {
 	pet := &Pet{}
 	cat := &Meta{}
+	var status string
 	err := p.db.QueryRow(
 		`
-	SELECT id, name, status, categoryId, c.name AS categoryName 
+	SELECT p.id, p.name, status, categoryId, c.name AS categoryName 
 	FROM pets p
 	JOIN categories c ON p.categoryId = c.id 
-	WHERE id = ?`,
+	WHERE p.id = ?`,
 		id,
-	).Scan(&pet.Id, &pet.Name, &pet.Status, &cat.Id, &cat.Name)
+	).Scan(&pet.Id, &pet.Name, &status, &cat.Id, &cat.Name)
 
 	if err != nil {
 		p.log.Error(err)
 		return nil
 	}
-
+	pet.Status.FromString(status)
 	pet.Category = cat
 	pet.PhotoUrls = p.FindPhotoUrls(id)
 	pet.Tags = p.FindTags(id)
@@ -69,7 +70,7 @@ func (p *MySQLPersistence) FindPhotoUrls(id int64) []string {
 	}
 	for res.Next() {
 		var url string
-		err = res.Scan(url)
+		err = res.Scan(&url)
 		if err != nil {
 			p.log.Error(err)
 		} else {
@@ -84,7 +85,7 @@ func (p MySQLPersistence) FindTags(id int64) []*Meta {
 	{
 	}
 	res, err := p.db.Query(`
-		SELECT t.id, t.tag 
+		SELECT t.id, t.name 
 		FROM pet_tags p
 		JOIN tags t ON p.tagId = t.id
 		WHERE p.petId = ?`,
@@ -104,11 +105,12 @@ func (p MySQLPersistence) FindTags(id int64) []*Meta {
 			tags = append(tags, tag)
 		}
 	}
+	return tags
 }
 func (p *MySQLPersistence) FindByStatus(status Status) []*Pet {
 	var pets []*Pet
 	res, err := p.db.Query(`
-		SELECT id, name, status, categoryId, c.name AS categoryName 
+		SELECT p.id, p.name, status, categoryId, c.name AS categoryName 
 		FROM pets p
 		JOIN categories c ON p.categoryId = c.id 
 		WHERE status = ?`,
@@ -122,11 +124,13 @@ func (p *MySQLPersistence) FindByStatus(status Status) []*Pet {
 	for res.Next() {
 		pet := &Pet{}
 		cat := &Meta{}
-		err = res.Scan(&pet.Id, &pet.Name, &pet.Status, &cat.Id, &cat.Name)
+		var status string
+		err = res.Scan(&pet.Id, &pet.Name, &status, &cat.Id, &cat.Name)
 
 		if err != nil {
 			p.log.Error(err)
 		} else {
+			pet.Status.FromString(status)
 			pet.Category = cat
 			pet.PhotoUrls = p.FindPhotoUrls(pet.Id)
 			pet.Tags = p.FindTags(pet.Id)
@@ -157,7 +161,7 @@ func (p *MySQLPersistence) updatePet(pet *Pet) error {
 			UPDATE pets SET 
 				name = ?,
 				status = ?,
-				category = ?
+				categoryId = ?
 			WHERE id = ?`,
 		pet.Name,
 		pet.Status.String(),
@@ -171,7 +175,7 @@ func (p *MySQLPersistence) updateTags(id int64, tags []*Meta) error {
 	if id == 0 {
 		return nil
 	}
-	res, err := p.db.Exec(`DELETE FROM pet_tags WHERE petId = ?`)
+	res, err := p.db.Exec(`DELETE FROM pet_tags WHERE petId = ?`,id)
 	if err != nil {
 		p.log.Errorf("clear tags failed: res %v, err %v", res, err)
 	}
@@ -191,7 +195,7 @@ func (p *MySQLPersistence) insertTags(id int64, tags []*Meta) error {
 	res, err := p.db.Exec(`
 		INSERT IGNORE INTO pet_tags (petId, tagId)
 		VALUES
-		` + strings.Join(vals, ","))
+		` + strings.Join(vals, ","), params...)
 	if err != nil {
 		p.log.Errorf("add tags failed: res %v, err %v", res, err)
 		return err
@@ -203,7 +207,7 @@ func (p *MySQLPersistence) updatePhotos(id int64, photos []string) error {
 	if id == 0 {
 		return nil
 	}
-	res, err := p.db.Exec(`DELETE FROM pet_photos WHERE petId = ?`)
+	res, err := p.db.Exec(`DELETE FROM pet_photos WHERE petId = ?`, id)
 	if err != nil {
 		p.log.Errorf("clear photos failed: res %v, err %v", res, err)
 	}
@@ -238,7 +242,7 @@ func (p *MySQLPersistence) Insert(pet *Pet) (*Pet, error) {
 	}
 	pet.Id, err = res.LastInsertId()
 	if err != nil {
-		p.log.Errorf("could not determine petId: err %v", res, err)
+		p.log.Errorf("could not determine petId: err %v", err)
 		return pet, err
 	}
 	err = p.insertPhotos(pet.Id, pet.PhotoUrls)
@@ -278,7 +282,7 @@ func (p *MySQLPersistence) GetStatusCounts() *Inventory {
 	for res.Next() {
 		var status string
 		var count int32
-		err := res.Scan(status, count)
+		err := res.Scan(&status, &count)
 		if err != nil {
 			p.log.Errorf("unable to retrieve inventory: %v", err)
 			return nil

@@ -1,7 +1,7 @@
 USE pet;
-CREATE TABLE pets
+CREATE TABLE IF NOT EXISTS pets
 (
-    id              int         NOT NULL AUTO_INCREMENT,
+    id              int        NOT NULL AUTO_INCREMENT,
     categoryId      int        DEFAULT 0,
     name            varchar(50) NOT NULL,
     status          varchar(9) DEFAULT 'available',
@@ -11,7 +11,7 @@ CREATE TABLE pets
     PRIMARY KEY petId (`id`)
 );
 
-CREATE TABLE pet_photos
+CREATE TABLE IF NOT EXISTS pet_photos
 (
     petId           int          NOT NULL,
     url             varchar(255) NOT NULL,
@@ -20,25 +20,25 @@ CREATE TABLE pet_photos
     PRIMARY KEY petId_url (`petId`, `url`)
 );
 
-CREATE TABLE pet_tags
+CREATE TABLE IF NOT EXISTS pet_tags
 (
     petId int NOT NULL,
     tagId int NOT NULL
-)
+);
 
-CREATE TABLE categories
+CREATE TABLE IF NOT EXISTS categories
 (
     id   int NOT NULL AUTO_INCREMENT,
     name varchar(50),
     PRIMARY KEY categoryId (`id`)
 );
 
-CREATE TABLE tags
+CREATE TABLE IF NOT EXISTS tags
 (
     id   int NOT NULL AUTO_INCREMENT,
     name varchar(50),
     PRIMARY KEY tagId (`id`)
-)
+);
 
 INSERT INTO categories (id, name)
 VALUES (1, 'dogs'),
@@ -64,7 +64,3 @@ VALUES (1, 'https://s3.public/img1-1.png', now()),
        (3, 'https://s3.public/img3-1.png', now()),
        (3, 'https://s3.public/img3-2.png', now()),
        (1, 'https://s3.public/img1-3.png', now());
--- since we've added test data, we'll update the latest sequence values for the tables affected.
-ALTER TABLE pets AUTO_INCREMENT=4;
-ALTER TABLE categories AUTO_INCREMENT=4;
-ALTER TABLE tags AUTO_INCREMENT=4;
