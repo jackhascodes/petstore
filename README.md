@@ -28,3 +28,5 @@ the simple integration with Go and a very easy setup for demonstration purposes.
 * how to test individual services
 * how to run individual services
 * how to run everything together   
+
+checkpoint: 5h 3m spent so far
